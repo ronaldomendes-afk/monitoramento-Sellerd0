@@ -397,6 +397,10 @@ input[type="file"] { display: none; }
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M4 7l4 4 4-4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
       Importar CSV
     </button>
+    <button class="btn" onclick="exportCSV()" id="btn-export-csv" style="display:none;">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 10V2M4 7l4 4 4-4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+      Exportar CSV
+    </button>
     <button class="btn btn-accent" onclick="exportPDF()">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="14" rx="1.5"/><path d="M5 5h4M5 8h4M5 11h2"/></svg>
       Exportar PDF
@@ -702,6 +706,7 @@ function eficColor(v){return v<0.5?'#FF4E4E':v<0.8?'#FF8C00':'#22C55E';}
 function renderDashboard(){
   document.getElementById('empty-state').style.display='none';
   document.getElementById('dashboard').style.display='block';
+  document.getElementById('btn-export-csv').style.display='inline-flex';
   const sellers=DATA.filter(x=>x.tipo==='seller');
   const places =DATA.filter(x=>x.tipo==='place');
   let totEst=0,totCol=0,sEst=0,sCol=0,pEst=0,pCol=0,blCnt=0;
@@ -799,6 +804,23 @@ document.querySelectorAll('.tab').forEach(btn=>{
 function exportPDF(){
   document.title='Monitoramento Sellers D0 - '+new Date().toLocaleDateString('pt-BR');
   window.print();
+}
+
+function exportCSV(){
+  if(!DATA.length){ alert('Nenhum dado carregado.'); return; }
+  const header='Nome,ID,Planejadas,Preparados,Backlog,Estimados,Coletados,Status,Alerta';
+  const rows=DATA.map(x=>
+    [x.name,x.id,x.plan,x.prep,x.bkl,x.est,x.col,x.status,x.alerta]
+    .map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')
+  );
+  const csv='\uFEFF'+header+'\n'+rows.join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='monitoramento-D0-'+new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 (function(){
