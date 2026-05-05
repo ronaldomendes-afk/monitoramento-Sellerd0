@@ -681,18 +681,13 @@ function parseCSV(text){
   if(h.includes('nome')||h.includes('estimad')||h.includes('coletad'))start=1;
   function parseBRNum(s){if(!s)return 0;return parseFloat(s.replace(/\./g,'').replace(',','.'))||0;}
   const rows=[];
-  const seenIds = new Set();
   for(let i=start;i<lines.length;i++){
     if(!lines[i].trim())continue;
     const cols=splitLine(lines[i]);
     if(cols.length<7)continue;
     const id=cols[1]||'';
     const name=cols[0]||'';
-    // Ignora linhas sem nome, sem ID numérico/válido, ou duplicadas
     if(!name || name==='N/A') continue;
-    const dedupKey = id || name;
-    if(seenIds.has(dedupKey)) continue;
-    seenIds.add(dedupKey);
     rows.push({
       name, id,
       plan:parseBRNum(cols[2]), prep:parseBRNum(cols[3]), bkl:parseBRNum(cols[4]),
